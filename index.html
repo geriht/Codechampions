@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coding Champions · Игровой портал</title>
+<style>
+:root{--bg:#f4f8f5;--card:#fff;--ink:#20332c;--muted:#6b7d74;--green:#2d8a68;--line:#dce8e0;--mint:#e6f5ed;--gold:#ffcf5a}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eff8f2,#f8f7ff);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+header{padding:26px 18px 18px;text-align:center;background:linear-gradient(120deg,#1e7659,#48a782);color:white}
+header h1{margin:0;font-size:clamp(1.5rem,4vw,2.3rem)}header p{margin:7px 0 0;opacity:.92}
+main{max-width:1200px;margin:20px auto;padding:0 14px 30px;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px #244c3610}
+.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.month-title{font-size:1.35rem;font-weight:800;text-transform:capitalize}
+button,select,input{font:inherit}button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer;font-weight:650}
+.btn{background:var(--mint);color:#24684e}.btn-primary{background:var(--green);color:white}.btn-quiet{background:#f1f4f2;color:#40554b}.btn-danger{background:#fff0ef;color:#a33c37}
+.weekdays,.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.weekdays div{text-align:center;color:var(--muted);font-size:.8rem;font-weight:750;padding:6px 0}
+.day{min-height:108px;border:1px solid var(--line);border-radius:12px;padding:7px;background:#fff;cursor:pointer;transition:.15s;min-width:0}
+.day:hover{border-color:#71b99a;background:#fbfffc}.day.selected{outline:2px solid var(--green);background:#f0fbf4}.day.empty{background:#f8faf8;border-style:dashed;cursor:default}
+.day.today .day-num{background:var(--gold);color:#513e00}.day-top{display:flex;justify-content:space-between;align-items:center}.day-num{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border-radius:50%;font-weight:800;font-size:.86rem}
+.day-count{font-size:.68rem;color:var(--muted)}.marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.mark{display:inline-flex;align-items:center;gap:3px;background:#edf8f1;border:1px solid #d5eddf;border-radius:7px;padding:3px 5px;font-size:.74rem;max-width:100%}.mark .emoji{font-size:1rem}.mark .who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-title{margin:0 0 10px;font-size:1.05rem}.field{display:grid;gap:5px;margin:11px 0}.field label{font-size:.82rem;color:var(--muted);font-weight:700}.field select,.field input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;color:var(--ink)}
+.student-list{display:grid;gap:7px}.student{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px;background:#f7faf8}.student .icon{font-size:1.35rem;width:30px;text-align:center}.student .name{font-weight:700}.student .sticker{margin-left:auto;color:#42745d;font-size:.8rem}
+.selected-date{font-weight:800;color:var(--green);margin-bottom:8px}.assigned-list{display:grid;gap:7px}.assigned{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px}.assigned .info{flex:1;min-width:0}.assigned .info b{display:block}.assigned .info small{color:var(--muted);overflow-wrap:anywhere}.assigned button{padding:5px 8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.note{font-size:.8rem;color:var(--muted);line-height:1.45}.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf2ee}.stat:last-child{border:0}.stat strong{color:var(--green)}
+footer{text-align:center;padding:0 16px 25px;color:var(--muted);font-size:.82rem}
+@media(max-width:850px){main{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr;gap:14px}.day{min-height:90px;padding:5px}.mark .who{display:none}.mark{padding:3px}.marks{gap:3px}}
+@media(max-width:480px){main{padding:0 8px 20px;margin-top:10px}.panel{padding:10px;border-radius:14px}.calendar,.weekdays{gap:3px}.day{min-height:70px;border-radius:8px}.day-num{width:23px;height:23px;font-size:.78rem}.day-count{display:none}.mark{font-size:.7rem}.toolbar{gap:5px}.month-title{font-size:1.1rem}button{padding:8px 9px}}
+.year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.mini-month{border:1px solid var(--line);border-radius:12px;padding:9px;background:#fff}.mini-month h3{text-align:center;margin:5px 0 8px;font-size:.95rem;text-transform:capitalize}.mini-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.mini-days span{font-size:.68rem;text-align:center;padding:4px 1px;border-radius:5px}.mini-days .hasmarks{background:#e1f4e8;color:#25694c;font-weight:800}@media(max-width:700px){.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:440px){.year-grid{grid-template-columns:1fr}}
+
+.rank-row{display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #edf2ee}
+.rank-row .pos{width:24px;color:#7b8b82;font-weight:800}.rank-row .rank-main{flex:1}.rank-row small{display:block;color:var(--muted)}
+.xpbar{height:7px;background:#e9f0eb;border-radius:8px;overflow:hidden;margin-top:4px}.xpbar span{display:block;height:100%;background:linear-gradient(90deg,#45a67a,#8bd2a9)}
+.achievement{display:inline-block;background:#fff3d6;border:1px solid #f0dc9e;border-radius:9px;padding:5px 8px;margin:3px;font-size:.78rem}
+#teacherPanel{display:none}button:disabled{opacity:.4;cursor:not-allowed}
+
+.portal-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:14px auto;max-width:1200px;padding:0 12px}.portal-nav button{background:#e8f5ee;color:#27664e}.portal-nav button.active{background:#247b58;color:#fff}.portal-view{max-width:1200px;margin:16px auto;padding:0 14px}.portal-view .panel{margin-bottom:14px}.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.profile-card{cursor:pointer;transition:.15s}.profile-card:hover{transform:translateY(-2px)}.profile-avatar{font-size:2.8rem}.task-item{padding:9px;border:1px solid var(--line);border-radius:10px;margin:6px 0}.portal-view[hidden]{display:none!important}.rank-row{cursor:pointer}.season-banner{background:linear-gradient(120deg,#254d76,#6596ce);color:white;padding:14px;border-radius:14px;margin-bottom:12px}@media(max-width:600px){.portal-nav button{flex:1;min-width:40%}.portal-view{padding:0 8px}}
+</style>
+</head>
+<body>
+<header><h1>💻 Coding Champions · XP & Levels</h1><p>Игровая команда программистов · общий рейтинг</p></header>
+<section class="panel" style="max-width:1200px;margin:18px auto 0;padding:16px;">
+<h2>☁️ Общая онлайн-доска</h2><p class="note">Ученикам доступен только просмотр. Для управления отметками войдите в учительский аккаунт.</p>
+<div id="authArea" style="margin-top:12px"><div class="field"><label>Учительский email</label><input id="teacherEmail" type="email" autocomplete="username" placeholder="email учителя"></div><div class="field"><label>Пароль</label><input id="teacherPassword" type="password" autocomplete="current-password" placeholder="Пароль учителя"></div><button class="btn-primary" id="teacherLogin">🔐 Войти как учитель</button><button class="btn-quiet" id="teacherLogout" style="display:none">Выйти</button></div>
+<div id="cloudStatus" class="note" style="margin-top:10px">Подключаемся к базе…</div></section>
+
+<nav class="portal-nav" aria-label="Навигация портала"><button class="active" data-view="home">🏆 Главная</button><button data-view="profiles">👾 Программисты</button><button data-view="progress">🗺️ Карта уровней</button><button data-view="season">🍂 Сезон</button></nav>
+<section class="portal-view" id="view-home"><div class="panel"><h2>🏆 Coding Champions · Лидерборд</h2><p class="note">Нажми на имя участника, чтобы открыть его личную карточку.</p><div id="portalRanking"></div></div><div class="panel"><h2>📌 Задания сезона</h2><div id="publicTasks"><p class="note">Задания появятся после публикации учителем.</p></div></div></section>
+<section class="portal-view" id="view-profiles" hidden><div class="panel"><h2>👾 Личные профили</h2><div class="profile-grid" id="profileCards"></div></div><div class="panel" id="profileDetail"><p class="note">Выберите программиста.</p></div></section>
+<section class="portal-view" id="view-progress" hidden><div class="panel"><h2>🗺️ Путь программиста</h2><p class="note">Каждый уровень — новый этап приключения.</p><div id="progressMap"></div></div></section>
+<section class="portal-view" id="view-season" hidden><div class="panel"><h2>🍂 Сезон Coding Champions</h2><div class="season-banner"><h3 id="seasonTitle">Сезон учебного года</h3><p>С сентября по май · XP и достижения сезона</p></div><div id="seasonStats"></div></div></section>
+
+<main>
+<section class="panel">
+  <div class="toolbar">
+    <button class="btn" id="prev">← Предыдущий</button>
+    <div class="month-title" id="monthTitle"></div>
+    <button class="btn" id="next">Следующий →</button><button class="btn-quiet" id="yearView">📅 Весь год</button>
+  </div>
+  <div class="weekdays"><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div></div>
+  <div class="calendar" id="calendar"></div><div id="yearGrid" style="display:none"></div>
+  <div class="actions">
+    <button class="btn-quiet" id="export">⬇ Сохранить резервную копию</button>
+    <button class="btn-quiet" id="importBtn">⬆ Загрузить копию</button>
+    <input id="importFile" type="file" accept="application/json" hidden>
+    <button class="btn-danger" id="clearAll">Очистить все отметки</button>
+  </div>
+<p class="note">Данные хранятся в общей базе Firebase и обновляются у всех в реальном времени. Копия сохраняется в браузере, поэтому портал открывается и при плохой связи. Резервная копия JSON поможет восстановить данные.</p>
+</section>
+<aside class="side">
+  <section class="panel" id="teacherPanel">
+    <h2 class="side-title">🎯 Кабинет учителя — добавление достижений</h2>
+    <div class="selected-date" id="selectedDateLabel"></div>
+    <div class="field"><label for="studentSelect">Ученик</label><select id="studentSelect"></select></div>
+    <div class="field"><label for="taskSelect">Значок за задание</label><select id="taskSelect">
+      <option value="⭐">⭐ Задание выполнено</option><option value="🚀">🚀 Сложная задача</option><option value="🐞">🐞 Нашёл и исправил ошибку</option><option value="🧠">🧠 Отличная идея</option><option value="🏆">🏆 Победа / рекорд</option><option value="🤝">🤝 Помог товарищу</option><option value="🎯">🎯 Точность и аккуратность</option><option value="🔥">🔥 Серия без пропусков</option>
+    </select></div>
+    <div class="field"><label for="taskNote">Комментарий (необязательно)</label><input id="taskNote" maxlength="100" placeholder="Например: решил задачу № 5"></div>
+    <button class="btn-primary" id="addMark" style="width:100%">＋ Поставить значок на дату</button>
+    <div class="field"><label>Новое задание для команды</label><input id="newTaskTitle" maxlength="120" placeholder="Название задания"></div><div class="field"><label>Описание / ссылка / срок</label><input id="newTaskDesc" maxlength="300" placeholder="Что нужно выполнить"></div><button class="btn" id="publishTask">📣 Опубликовать задание</button><div id="teacherTasks"></div><p class="note">У каждого ученика есть свой постоянный значок-аватар. В календаре он отображается вместе со значком достижения.</p>
+  </section>
+  <section class="panel">
+    <h2 class="side-title">📅 Отметки за выбранный день</h2>
+    <div class="assigned-list" id="assignedList"></div>
+    <p class="note" id="emptyDay">Выберите дату и добавьте первое достижение.</p>
+  </section>
+  <section class="panel">
+    <h2 class="side-title">👾 Команда программистов</h2>
+    <div class="student-list" id="studentList"></div>
+    <div style="margin-top:12px" id="stats"></div><h3 class="side-title" style="margin-top:16px">🏅 Рейтинг и уровни</h3><div id="ranking"></div><div id="achievements"></div>
+  </section>
+</aside>
+</main>
+<footer>Coding Champions • общий рейтинг программистов</footer>
+<script type="module">
+const students = [
+ {name:"Назар",icon:"🦊",sticker:"Лис-программист"},
+ {name:"Никита",icon:"🤖",sticker:"Кибербот"},
+ {name:"Данила",icon:"🐉",sticker:"Дракон кода"},
+ {name:"Денис",icon:"🦖",sticker:"Дино-хакер"},
+ {name:"Ваня",icon:"🚀",sticker:"Ракетный старт"},
+ {name:"Митя",icon:"🐼",sticker:"Панда-логик"},
+ {name:"Мирон",icon:"🦉",sticker:"Сова алгоритмов"},
+ {name:"Захар",icon:"🦁",sticker:"Лев отладки"},
+ {name:"Тарзан",icon:"🐒",sticker:"Обезьянка-кодер"},
+ {name:"Арсений",icon:"🦈",sticker:"Акула задач"},
+ {name:"Глеб",icon:"🐺",sticker:"Волк решений"},
+ {name:"Миша",icon:"🐸",sticker:"Лягушка-питонист"},
+ {name:"Сахар",icon:"🐝",sticker:"Пчела идей"},
+ {name:"Рома",icon:"🦄",sticker:"Единорог технологий"},
+ {name:"Санек",icon:"🛠️",sticker:"Мастер кода"},
+ {name:"Горошек",icon:"🟢",sticker:"Зелёный кодер"},
+ {name:"Вишенка",icon:"🍒",sticker:"Вишнёвый дебаггер"}
+];
+const $ = id => document.getElementById(id);
+const today = new Date();
+let viewYear = today.getFullYear(), viewMonth = today.getMonth(), selectedDate = dateKey(today);
+function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function parseKey(key){const [y,m,d]=key.split("-").map(Number);return new Date(y,m-1,d)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderCalendar(){
+ const first=new Date(viewYear,viewMonth,1), days=new Date(viewYear,viewMonth+1,0).getDate();
+ $("monthTitle").textContent=first.toLocaleDateString("ru-RU",{month:"long",year:"numeric"});
+ const offset=(first.getDay()+6)%7; let html="";
+ for(let i=0;i<offset;i++)html+='<div class="day empty"></div>';
+ for(let d=1;d<=days;d++){
+  const key=dateKey(new Date(viewYear,viewMonth,d)), arr=marks[key]||[], isToday=key===dateKey(today), selected=key===selectedDate;
+  const preview=arr.slice(0,10).map(m=>{const s=students.find(x=>x.name===m.student)||{icon:"👤"};return `<span class="mark" title="${escapeHtml(m.student+" — "+m.task+(m.note?": "+m.note:""))}"><span class="emoji">${s.icon}${m.task}</span><span class="who">${escapeHtml(m.student)}</span></span>`}).join("");
+  html+=`<div class="day ${selected?"selected":""} ${isToday?"today":""}" data-date="${key}"><div class="day-top"><span class="day-num">${d}</span><span class="day-count">${arr.length?arr.length+" шт.":""}</span></div><div class="marks">${preview}</div></div>`;
+ }
+ $("calendar").innerHTML=html;
+ $("calendar").querySelectorAll(".day[data-date]").forEach(el=>el.addEventListener("click",()=>{selectedDate=el.dataset.date;renderCalendar();renderSelectedDay();}));
+}
+
+let showingYear = false;
+function renderYear(){const container=$("yearGrid"),year=viewYear;const monthNames=Array.from({length:12},(_,m)=>new Date(year,m,1).toLocaleDateString("ru-RU",{month:"long"}));container.innerHTML='<div class="year-grid">'+monthNames.map((mn,m)=>{const first=new Date(year,m,1),total=new Date(year,m+1,0).getDate(),offset=(first.getDay()+6)%7;let cells=Array(offset).fill('<span></span>');for(let d=1;d<=total;d++){const key=dateKey(new Date(year,m,d)),count=(marks[key]||[]).length;cells.push(`<span class="${count?'hasmarks':''}" data-date="${key}" title="${count?count+' достижений':''}">${d}${count?'•':''}</span>`);}return `<div class="mini-month"><h3>${mn}</h3><div class="mini-days">${['П','В','С','Ч','П','С','В'].map(x=>`<span>${x}</span>`).join('')}${cells.join('')}</div></div>`;}).join('')+'</div>';container.querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>{selectedDate=el.dataset.date;const d=parseKey(selectedDate);viewYear=d.getFullYear();viewMonth=d.getMonth();showingYear=false;$("yearGrid").style.display="none";$("calendar").style.display="grid";renderAll();}));}
+
+function renderSelectedDay(){
+ const d=parseKey(selectedDate);
+ $("selectedDateLabel").textContent=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ const arr=marks[selectedDate]||[];
+ $("assignedList").innerHTML=arr.map(m=>{const s=students.find(x=>x.name===m.student)||{icon:"👤"};return `<div class="assigned"><span style="font-size:1.35rem">${s.icon}${m.task}</span><div class="info"><b>${escapeHtml(m.student)}</b><small>${escapeHtml(m.note||m.task)} · +${xpForMark(m)} XP</small></div>${teacherMode?`<button class="btn-danger" data-remove="${m.id}" title="Удалить отметку">×</button>`:""}</div>`}).join("");
+ $("emptyDay").style.display=arr.length?"none":"block";
+ $("assignedList").querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>{if(!teacherMode){alert("Только учитель может удалять отметки.");return;}if(confirm("Удалить эту отметку у всех?"))store.removeMark(b.dataset.remove).catch(fail);}));
+}
+function xpForMark(m){
+ const values={"⭐":10,"🚀":20,"🐞":15,"🧠":15,"🏆":30,"🤝":10,"🎯":10,"🔥":20};
+ return values[m.task]||10;
+}
+function levelFor(xp){
+ const levels=[{n:1,title:"Новичок",min:0},{n:2,title:"Ученик кодера",min:100},{n:3,title:"Алгоритмист",min:250},{n:4,title:"Мастер отладки",min:500},{n:5,title:"Разработчик",min:800},{n:6,title:"Гуру кода",min:1200},{n:7,title:"Легенда IT",min:1800}];
+ return levels.slice().reverse().find(l=>xp>=l.min)||levels[0];
+}
+function renderRoster(){
+ renderPortal();
+ $("studentList").innerHTML=students.map(s=>`<div class="student"><span class="icon">${s.icon}</span><span><span class="name">${s.name}</span><br><span class="note">${s.sticker}</span></span></div>`).join("");
+ {const sel=$("studentSelect"),cur=sel.value;sel.innerHTML=students.map(s=>`<option value="${s.name}">${s.icon} ${s.name} — ${s.sticker}</option>`).join("");if(cur)sel.value=cur;}
+ const all=Object.values(marks).flat();
+ const counts=students.map(s=>({name:s.name,icon:s.icon,n:all.filter(m=>m.student===s.name).length,xp:all.filter(m=>m.student===s.name).reduce((sum,m)=>sum+xpForMark(m),0)})).sort((a,b)=>b.xp-a.xp||b.n-a.n);
+ $("stats").innerHTML='<h3 class="side-title">📊 Общая статистика</h3>'+`<div class="stat"><span>Всего отметок</span><strong>${all.length}</strong></div><div class="stat"><span>Всего XP</span><strong>${all.reduce((s,m)=>s+xpForMark(m),0)}</strong></div>`;
+ $("ranking").innerHTML=counts.map((s,i)=>{const lev=levelFor(s.xp),next=[0,100,250,500,800,1200,1800,2400].find(x=>x>s.xp)||2400;const prev=lev.min;const pct=Math.min(100,Math.round((s.xp-prev)/(next-prev)*100));return `<div class="rank-row"><span class="pos">${i+1}</span><span>${s.icon}</span><div class="rank-main"><b>${escapeHtml(s.name)} — ${lev.title}</b><small>${s.xp} XP · ${s.n} отметок</small><div class="xpbar"><span style="width:${pct}%"></span></div></div></div>`}).join("");
+ const badges=[];
+ counts.forEach(s=>{
+   if(s.n>=1)badges.push(`${s.icon} ${s.name}: Первый шаг`);
+   if(s.n>=10)badges.push(`${s.icon} ${s.name}: 10 заданий`);
+   if(s.n>=25)badges.push(`${s.icon} ${s.name}: Марафонец`);
+   if(s.xp>=250)badges.push(`${s.icon} ${s.name}: Алгоритмист`);
+   if(s.xp>=500)badges.push(`${s.icon} ${s.name}: Мастер отладки`);
+   if(s.xp>=1000)badges.push(`${s.icon} ${s.name}: Тысяча XP`);
+ });
+ $("achievements").innerHTML='<h3 class="side-title" style="margin-top:12px">✨ Автоматические достижения</h3>'+ (badges.length?badges.map(b=>`<span class="achievement">${escapeHtml(b)}</span>`).join(""):'<p class="note">Достижения появятся по мере накопления XP.</p>');
+}
+
+let marks = {}, tasks = [], teacherMode = false, store = null;
+const firebaseConfig = {
+  apiKey: "AIzaSyBAea9jgoNw0W78mt1-8k-5XGVipeOn140",
+  authDomain: "coding-champions.firebaseapp.com",
+  projectId: "coding-champions",
+  storageBucket: "coding-champions.firebasestorage.app",
+  messagingSenderId: "159788356955",
+  appId: "1:159788356955:web:33b1d87e91974909fc367e"
+};
+const V = "https://www.gstatic.com/firebasejs/10.12.2/";
+const fail = e => { console.error(e); alert("Не удалось выполнить действие: " + (e.code || e.message)); };
+const chunks = (a,n) => Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n));
+function cloudStatus(t){$("cloudStatus").textContent=t;}
+function setTeacherMode(on){teacherMode=!!on;document.body.classList.toggle("teacher-mode",teacherMode);$("teacherPanel").style.display=teacherMode?"block":"none";$('addMark').disabled=!teacherMode;$('clearAll').disabled=!teacherMode;$('export').disabled=!teacherMode;$('importBtn').disabled=!teacherMode;$('teacherLogout').style.display=teacherMode?"inline-block":"none";$('teacherLogin').style.display=teacherMode?"none":"inline-block";if(teacherMode)cloudStatus("🔐 Вы вошли в кабинет учителя.");else cloudStatus("👀 Режим просмотра для учеников.");}
+// Приводит {дата:[отметки]} к плоскому списку документов
+function flatten(obj){
+ const out=[];
+ for(const [date,arr] of Object.entries(obj||{})) if(Array.isArray(arr)) arr.forEach(m=>{
+  if(!m||!m.student||!m.task) return;
+  out.push({date,student:String(m.student).slice(0,30),task:String(m.task).slice(0,8),note:String(m.note||"").slice(0,100),createdAt:Date.parse(m.createdAt)||Number(m.createdAt)||Date.now()});
+ });
+ return out;
+}
+async function initFirebase(){
+ try{
+  const [{initializeApp},fs,au]=await Promise.all([import(V+"firebase-app.js"),import(V+"firebase-firestore.js"),import(V+"firebase-auth.js")]);
+  const {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,collection,addDoc,deleteDoc,doc,getDoc,writeBatch,onSnapshot}=fs;
+  const app=initializeApp(firebaseConfig);
+  // persistentLocalCache — копия данных хранится в браузере (IndexedDB)
+  const db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
+  const auth=au.getAuth(app);
+  const marksCol=collection(db,"marks"), tasksCol=collection(db,"tasks");
+  const writeAll=async(items,op)=>{for(const part of chunks(items,400)){const b=writeBatch(db);part.forEach(x=>op(b,x));await b.commit()}};
+  store={
+   addMark:m=>addDoc(marksCol,m),
+   removeMark:id=>deleteDoc(doc(db,"marks",id)),
+   removeAllMarks:ids=>writeAll(ids,(b,id)=>b.delete(doc(db,"marks",id))),
+   addMarks:list=>writeAll(list,(b,m)=>b.set(doc(marksCol),m)),
+   addTask:t=>addDoc(tasksCol,t),
+   removeTask:id=>deleteDoc(doc(db,"tasks",id)),
+   removeAllTasks:ids=>writeAll(ids,(b,id)=>b.delete(doc(db,"tasks",id))),
+   addTasks:list=>writeAll(list,(b,t)=>b.set(doc(tasksCol),t))
+  };
+  onSnapshot(marksCol,snap=>{
+   marks={};
+   snap.docs.map(d=>({id:d.id,...d.data()})).forEach(m=>(marks[m.date]??=[]).push(m));
+   Object.values(marks).forEach(a=>a.sort((x,y)=>x.createdAt-y.createdAt));
+   renderAll();
+   if(!teacherMode)cloudStatus(snap.metadata.fromCache?"📡 Нет связи — показаны сохранённые данные. · "+new Date().toLocaleTimeString():"☁️ Общие данные обновлены · "+new Date().toLocaleTimeString());
+  },err=>{console.error(err);cloudStatus("🔴 Ошибка доступа к базе ("+err.code+"). Проверьте правила Firestore.")});
+  onSnapshot(tasksCol,snap=>{tasks=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.createdAt-a.createdAt);renderAll()},err=>console.error(err));
+  // Вход учителя
+  $('teacherLogin').onclick=async()=>{
+   const email=$('teacherEmail').value.trim(),password=$('teacherPassword').value;
+   if(!email||!password){alert('Введите email и пароль.');return;}
+   try{await au.signInWithEmailAndPassword(auth,email,password);}
+   catch(e){alert(['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-email'].includes(e.code)?'Неверный email или пароль.':'Вход не выполнен: '+(e.code||e.message));}
+  };
+  $('teacherLogout').onclick=()=>au.signOut(auth);
+  au.onAuthStateChanged(auth,async user=>{
+   if(!user){setTeacherMode(false);renderAll();return;}
+   try{
+    const t=await getDoc(doc(db,"teachers",user.uid));
+    if(t.exists()){setTeacherMode(true);$('teacherPassword').value="";}
+    else{await au.signOut(auth);setTeacherMode(false);alert('Этот аккаунт не назначен учителем в базе (см. README).');}
+   }catch(e){console.error(e);await au.signOut(auth);setTeacherMode(false);alert('Не удалось проверить права учителя: '+(e.code||e.message));}
+   renderAll();
+  });
+  cloudStatus("👀 Режим просмотра для учеников.");
+ }catch(e){console.error(e);cloudStatus("🔴 Не удалось подключиться к Firebase: "+(e.message||e));}
+}
+
+const levelSteps=[{min:0,title:"Новичок",icon:"🌱"},{min:100,title:"Ученик кодера",icon:"💻"},{min:250,title:"Алгоритмист",icon:"🧩"},{min:500,title:"Мастер отладки",icon:"🐞"},{min:800,title:"Разработчик",icon:"🛠️"},{min:1200,title:"Гуру кода",icon:"🧠"},{min:1800,title:"Легенда IT",icon:"🏆"}];
+function studentStats(s,filterSeason=false){let all=Object.entries(marks).flatMap(([date,arr])=>arr.filter(m=>m.student===s.name&&(!filterSeason||seasonDate(date))).map(m=>({...m,date})));let xp=all.reduce((n,m)=>n+xpForMark(m),0);return {all,xp,level:levelFor(xp)}}
+function seasonDate(key){let [y,m]=key.split('-').map(Number);return (m>=9&&m<=12&&y===seasonStartYear())||(m>=1&&m<=5&&y===seasonStartYear()+1)}
+function seasonStartYear(){let n=new Date();return n.getMonth()>=8?n.getFullYear():n.getFullYear()-1}
+function renderPortal(){
+ const sorted=students.map(s=>({...s,...studentStats(s)})).sort((a,b)=>b.xp-a.xp||b.all.length-a.all.length);
+ $('portalRanking').innerHTML=sorted.map((s,i)=>`<div class="rank-row" data-profile="${escapeHtml(s.name)}"><span class="pos">${i+1}</span><span style="font-size:1.7rem">${s.icon}</span><div class="rank-main"><b>${escapeHtml(s.name)} · ${s.level.title}</b><small>${s.xp} XP · ${s.all.length} наград</small><div class="xpbar"><span style="width:${Math.min(100,s.xp/Math.max(1,([100,250,500,800,1200,1800,2400].find(v=>v>s.xp)||2400)-s.level.min)*100)}%"></span></div></div></div>`).join('');
+ $('profileCards').innerHTML=students.map(s=>{let st=studentStats(s);return `<div class="panel profile-card" data-profile="${escapeHtml(s.name)}"><div class="profile-avatar">${s.icon}</div><h3>${escapeHtml(s.name)}</h3><p>${escapeHtml(s.sticker)}</p><b>${st.xp} XP · ${st.level.title}</b></div>`}).join('');
+ $('profileCards').querySelectorAll('[data-profile]').forEach(el=>el.onclick=()=>showProfile(el.dataset.profile));$('portalRanking').querySelectorAll('[data-profile]').forEach(el=>el.onclick=()=>{switchView('profiles');showProfile(el.dataset.profile)});
+ $('progressMap').innerHTML=students.map(s=>{let st=studentStats(s),lev=st.level,next=levelSteps.find(x=>x.min>st.xp)?.min||2400;return `<div class="panel"><b>${s.icon} ${escapeHtml(s.name)} · ${lev.title}</b><p class="note">${st.xp} XP</p><div class="xpbar"><span style="width:${Math.min(100,(st.xp-lev.min)/(next-lev.min)*100)}%"></span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">${levelSteps.map(l=>`<span class="achievement" style="opacity:${st.xp>=l.min?1:.4}">${l.icon} ${l.title}${st.xp>=l.min?' ✓':''}</span>`).join('')}</div></div>`}).join('');
+ const start=seasonStartYear(),seasonAll=Object.entries(marks).flatMap(([date,arr])=>seasonDate(date)?arr.map(m=>({...m,date})):[]);$('seasonTitle').textContent=`Сезон ${start}–${start+1}`;$('seasonStats').innerHTML=`<div class="stat"><span>Наград в сезоне</span><strong>${seasonAll.length}</strong></div><div class="stat"><span>XP сезона</span><strong>${seasonAll.reduce((n,m)=>n+xpForMark(m),0)}</strong></div>`+students.map(s=>{let st=studentStats(s,true);return `<div class="rank-row"><span>${s.icon}</span><div class="rank-main"><b>${s.name}</b><small>${st.xp} сезонных XP · ${st.all.length} отметок</small></div></div>`}).join('');
+ $('publicTasks').innerHTML=tasks.length?tasks.map(t=>`<div class="task-item"><b>📌 ${escapeHtml(t.title)}</b><p>${escapeHtml(t.desc||'')}</p><small>${escapeHtml(t.date||'')}</small></div>`).join(''):'<p class="note">Задания появятся после публикации учителем.</p>';
+ if(teacherMode&&$('teacherTasks'))$('teacherTasks').innerHTML=tasks.map(t=>`<div class="task-item"><b>${escapeHtml(t.title)}</b><p>${escapeHtml(t.desc||'')}</p><button class="btn-danger" data-taskremove="${t.id}">Удалить</button></div>`).join('');
+ $('teacherTasks')?.querySelectorAll('[data-taskremove]').forEach(b=>b.onclick=()=>{if(confirm('Удалить задание?'))store.removeTask(b.dataset.taskremove).catch(fail)});
+}
+function showProfile(name){let s=students.find(x=>x.name===name);if(!s)return;let st=studentStats(s),next=levelSteps.find(x=>x.min>st.xp)?.min||2400;let history=st.all.sort((a,b)=>b.date.localeCompare(a.date));$('profileDetail').innerHTML=`<div class="profile-avatar">${s.icon}</div><h2>${escapeHtml(s.name)}</h2><p>${escapeHtml(s.sticker)}</p><h3>${st.level.icon||'⭐'} ${st.level.title} · ${st.xp} XP</h3><div class="xpbar"><span style="width:${Math.min(100,(st.xp-st.level.min)/(next-st.level.min)*100)}%"></span></div><p class="note">До следующего уровня: ${Math.max(0,next-st.xp)} XP</p><h3>История наград</h3>${history.length?history.map(m=>`<div class="task-item"><b>${m.task} · ${escapeHtml(m.date)}</b><p>${escapeHtml(m.note||'Достижение') } · +${xpForMark(m)} XP</p></div>`).join(''):'<p class="note">Пока нет наград — самое время начать!</p>'}`; }
+function switchView(view){document.querySelectorAll('.portal-view').forEach(v=>v.hidden=v.id!=='view-'+view);document.querySelectorAll('.portal-nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));}
+function renderAll(){renderCalendar();if(showingYear)renderYear();renderSelectedDay();renderRoster()}
+$("prev").onclick=()=>{if(showingYear){viewYear--;renderYear();$("monthTitle").textContent=viewYear;}else{viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}renderCalendar()}};
+$("next").onclick=()=>{if(showingYear){viewYear++;renderYear();$("monthTitle").textContent=viewYear;}else{viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}renderCalendar()}};
+$("yearView").onclick=()=>{showingYear=!showingYear;$("calendar").style.display=showingYear?"none":"grid";$("yearGrid").style.display=showingYear?"block":"none";$("yearView").textContent=showingYear?"🗓️ По месяцам":"📅 Весь год";if(showingYear){$("monthTitle").textContent=viewYear;renderYear();}else renderCalendar();};
+document.querySelectorAll('.portal-nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+$('publishTask').onclick=()=>{
+ if(!teacherMode){alert('Только учитель может публиковать задания.');return;}
+ const title=$('newTaskTitle').value.trim(),desc=$('newTaskDesc').value.trim();
+ if(!title){alert('Введите название задания.');return;}
+ store.addTask({title:title.slice(0,120),desc:desc.slice(0,300),date:new Date().toLocaleDateString('ru-RU'),createdAt:Date.now()}).catch(fail);
+ $('newTaskTitle').value='';$('newTaskDesc').value='';
+};
+$("addMark").onclick=()=>{
+ if(!teacherMode){alert("Только учитель может добавлять достижения.");return;}
+ const student=$("studentSelect").value, task=$("taskSelect").value, note=$("taskNote").value.trim().slice(0,100);
+ if((marks[selectedDate]||[]).filter(m=>m.student===student).length>=2){alert("У этого участника уже 2 отметки за день.");return;}
+ store.addMark({date:selectedDate,student,task,note,createdAt:Date.now()}).catch(fail);
+ $("taskNote").value="";
+};
+$("clearAll").onclick=()=>{
+ if(!teacherMode){alert("Только учитель.");return;}
+ const ids=Object.values(marks).flat().map(m=>m.id);
+ if(ids.length&&confirm("Удалить ВСЕ отметки календаря у всех пользователей? Это действие нельзя отменить без резервной копии."))store.removeAllMarks(ids).catch(fail);
+};
+$("export").onclick=()=>{if(!teacherMode)return;const blob=new Blob([JSON.stringify({version:3,students,marks,tasks},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="kod-kalendar-rezervnaya-kopiya.json";a.click();URL.revokeObjectURL(url)};
+$("importBtn").onclick=()=>{if(!teacherMode){alert("Только учитель.");return;}$("importFile").click();};
+$("importFile").onchange=async e=>{
+ if(!teacherMode){alert("Только учитель.");e.target.value="";return;}
+ const file=e.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(!data.marks||typeof data.marks!=="object")throw new Error();
+  const items=flatten(data.marks);
+  const newTasks=(Array.isArray(data.tasks)?data.tasks:[]).filter(t=>t&&t.title).map((t,i)=>({title:String(t.title).slice(0,120),desc:String(t.desc||"").slice(0,300),date:String(t.date||"").slice(0,20),createdAt:Number(t.createdAt)||Date.now()-i}));
+  if(confirm(`Заменить текущие данные файлом (${items.length} отметок, ${newTasks.length} заданий)? Изменение увидят все.`)){
+   await store.removeAllMarks(Object.values(marks).flat().map(m=>m.id));
+   await store.addMarks(items);
+   if(data.tasks){await store.removeAllTasks(tasks.map(t=>t.id));await store.addTasks(newTasks);}
+  }
+ }catch(err){console.error(err);alert("Не удалось прочитать копию. Выберите JSON-файл, созданный этим календарём.");}
+ e.target.value="";
+};
+renderAll();setTeacherMode(false);cloudStatus("Подключаемся к базе…");
+initFirebase();
+</script>
+</body>
+</html>
